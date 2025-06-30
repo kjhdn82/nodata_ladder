@@ -14,50 +14,104 @@
       position: relative;
       width: 300px;
       height: 500px;
-      background: linear-gradient(to top, #d6eaf8, #ffffff);
+      background: #e8f0fe;
       margin: 0 auto;
       border: 2px solid #333;
       overflow: hidden;
     }
+    .ladder-line {
+      position: absolute;
+      width: 4px;
+      height: 100%;
+      background-color: #555;
+    }
+    .rung {
+      position: absolute;
+      height: 4px;
+      background-color: #777;
+    }
     .character {
       position: absolute;
-      bottom: 0;
-      left: 50%;
       width: 32px;
       height: 32px;
-      background-color: red;
-      transform: translateX(-50%);
-      border-radius: 4px;
+      background-color: tomato;
+      border-radius: 5px;
+      bottom: 0;
+      left: 134px; /* 중앙에서 시작 */
     }
   </style>
 </head>
 <body>
-  <h2>🪜 사다리 올라라!</h2>
-  <div id="gameArea">
-    <!-- 캐릭터 위치 -->
-  </div>
-  <button class="btn btn-primary mt-3" id="startBtn">게임 시작</button>
+  <h2>🧗 사다리 올라라!</h2>
+  <div id="gameArea"></div>
+  <button class="btn btn-success mt-3" id="startBtn">게임 시작</button>
 
   <script>
     const gameArea = document.getElementById("gameArea");
     const startBtn = document.getElementById("startBtn");
 
-    startBtn.addEventListener("click", () => {
-      gameArea.innerHTML = ""; // 리셋
-      const char = document.createElement("div");
+    const gameWidth = 300;
+    const charWidth = 32;
+    let positionY = 0;
+    let positionX = 134;
+    let char;
+
+    // 사다리 그리기
+    function drawLadder() {
+      // 세로줄 2개
+      [80, 220].forEach(left => {
+        const line = document.createElement("div");
+        line.className = "ladder-line";
+        line.style.left = left + "px";
+        gameArea.appendChild(line);
+      });
+
+      // 가로 발판(간격 일정하게)
+      for (let i = 40; i < 500; i += 40) {
+        const rung = document.createElement("div");
+        rung.className = "rung";
+        rung.style.top = i + "px";
+        rung.style.left = "80px";
+        rung.style.width = "140px";
+        gameArea.appendChild(rung);
+      }
+    }
+
+    function startGame() {
+      gameArea.innerHTML = "";
+      drawLadder();
+
+      // 캐릭터 생성
+      char = document.createElement("div");
       char.classList.add("character");
       gameArea.appendChild(char);
 
-      let pos = 0;
+      positionY = 0;
+      positionX = 134;
+
+      // 점점 올라감
       const climb = setInterval(() => {
-        pos += 2;
-        char.style.bottom = pos + "px";
-        if (pos >= gameArea.offsetHeight - 32) {
+        positionY += 2;
+        char.style.bottom = positionY + "px";
+        if (positionY >= gameArea.offsetHeight - 32) {
           clearInterval(climb);
           alert("🎉 꼭대기 도착!");
         }
       }, 20);
+    }
+
+    // ← → 이동
+    document.addEventListener("keydown", (e) => {
+      if (!char) return;
+      if (e.key === "ArrowLeft") {
+        positionX = Math.max(0, positionX - 10);
+      } else if (e.key === "ArrowRight") {
+        positionX = Math.min(gameWidth - charWidth, positionX + 10);
+      }
+      char.style.left = positionX + "px";
     });
+
+    startBtn.addEventListener("click", startGame);
   </script>
 </body>
 </html>
